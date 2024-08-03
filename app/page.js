@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from "react";
 import { collection, getDocs, doc, setDoc, deleteDoc, query } from "firebase/firestore";
-import { Box, Typography, Stack, TextField, Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, createTheme, ThemeProvider } from "@mui/material";
+import { Box, Typography, Stack, TextField, Button, Card, CardContent, CardHeader, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, createTheme, ThemeProvider, Grid } from "@mui/material";
 import { Edit, Delete } from '@mui/icons-material';
 import { firestore } from "@/firebase";
 import StorefrontIcon from '@mui/icons-material/Storefront';
@@ -209,177 +209,183 @@ export default function Home() {
           display="flex" 
           justifyContent="center" 
           alignItems="flex-start" 
-          flexDirection={{ xs: "column", md: "row" }}
+          flexDirection="column" 
           gap={4}
           sx={{ padding: 4 }}
         >
-          {/* Add/Edit Item Form */}
-          <Card sx={{ flex: 1 }}>
-            <CardHeader title={editingItem ? "Edit Item Details" : "Add New Item"} />
-            <CardContent>
-              <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField
-                  label="Name"
-                  fullWidth
-                  value={itemName}
-                  onChange={(e) => setItemName(e.target.value)}
-                  disabled={!!editingItem}
-                  InputLabelProps={{
-                    shrink: true,
-                    style: { fontWeight: 'bold', fontSize: '1rem' },
-                  }}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      padding: '6px 14px',
-                      height: '40px',
-                    },
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '8px',
-                    },
-                  }}
-                />
+          <Grid container spacing={4}>
+            {/* Add/Edit Item Form */}
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: '100%' }}>
+                <CardHeader title={editingItem ? "Edit Item Details" : "Add New Item"} />
+                <CardContent>
+                  <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                      label="Name"
+                      fullWidth
+                      value={itemName}
+                      onChange={(e) => setItemName(e.target.value)}
+                      disabled={!!editingItem}
+                      InputLabelProps={{
+                        shrink: true,
+                        style: { fontWeight: 'bold', fontSize: '1rem' },
+                      }}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          padding: '6px 14px',
+                          height: '40px',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '8px',
+                        },
+                      }}
+                    />
 
-                <TextField
-                  label="Quantity"
-                  type="number"
-                  fullWidth
-                  value={itemQuantity}
-                  onChange={(e) => setItemQuantity(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                    style: { fontWeight: 'bold', fontSize: '1rem' },
-                  }}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      padding: '6px 14px',
-                      height: '40px',
-                    },
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '8px',
-                    },
-                  }}
-                />
+                    <TextField
+                      label="Quantity"
+                      type="number"
+                      fullWidth
+                      value={itemQuantity}
+                      onChange={(e) => setItemQuantity(e.target.value)}
+                      InputLabelProps={{
+                        shrink: true,
+                        style: { fontWeight: 'bold', fontSize: '1rem' },
+                      }}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          padding: '6px 14px',
+                          height: '40px',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '8px',
+                        },
+                      }}
+                    />
 
-                <TextField
-                  label="Expiration Date"
-                  type="date"
-                  fullWidth
-                  value={itemExpiration}
-                  onChange={(e) => setItemExpiration(e.target.value)}
-                  InputLabelProps={{
-                    shrink: true,
-                    style: { fontWeight: 'bold', fontSize: '1rem' },
-                  }}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      padding: '6px 14px',
-                      height: '40px',
-                    },
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '8px',
-                    },
-                    '& input[type="date"]::-webkit-clear-button': {
-                      display: 'none',
-                    },
-                  }}
-                />
+                    <TextField
+                      label="Expiration Date"
+                      type="date"
+                      fullWidth
+                      value={itemExpiration}
+                      onChange={(e) => setItemExpiration(e.target.value)}
+                      InputLabelProps={{
+                        shrink: true,
+                        style: { fontWeight: 'bold', fontSize: '1rem' },
+                      }}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          padding: '6px 14px',
+                          height: '40px',
+                        },
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '8px',
+                        },
+                        '& input[type="date"]::-webkit-clear-button': {
+                          display: 'none',
+                        },
+                      }}
+                    />
 
-                <Stack direction="row" spacing={2}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={editingItem ? editItem : addItem}
-                  >
-                    {editingItem ? 'Save Changes' : 'Add Item'}
-                  </Button>
-                  {editingItem && (
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      onClick={resetForm}
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                </Stack>
-              </Box>
-            </CardContent>
-          </Card>
+                    <Stack direction="row" spacing={2}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={editingItem ? editItem : addItem}
+                      >
+                        {editingItem ? 'Save Changes' : 'Add Item'}
+                      </Button>
+                      {editingItem && (
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={resetForm}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </Stack>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
 
-          {/* Inventory Table */}
-          <Card sx={{ flex: 2, maxHeight: 450, overflowY: 'auto' }}>
-            <CardHeader title="Inventory Items" />
-            <CardContent>
-              <TextField
-                label="Search by Name"
-                fullWidth
-                value={searchQuery}
-                onChange={handleSearch}
-                InputLabelProps={{
-                  shrink: true,
-                  style: { fontWeight: 'bold', fontSize: '1rem', color: '#000' },
-                }}
-                sx={{
-                  marginBottom: 2,
-                  '& .MuiInputBase-root': {
-                    padding: '6px 14px',
-                    height: '40px',
-                    backgroundColor: '#fff',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                  },
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '8px',
-                    '& fieldset': {
-                      borderColor: '#e0e0e0',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#bdbdbd',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#000',
-                    },
-                  },
-                }}
-              />
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Quantity</TableCell>
-                      <TableCell>Expiration</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredInventory.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{item.expiration}</TableCell>
-                        <TableCell>
-                          <IconButton 
-                            color="primary" 
-                            onClick={() => startEditing(item)}
-                            sx={{ marginRight: 1 }}
-                          >
-                            <Edit />
-                          </IconButton>
-                          <IconButton 
-                            color="error" 
-                            onClick={() => removeItem(item.id)}
-                          >
-                            <Delete />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
+            {/* Inventory Table */}
+            <Grid item xs={12} md={8}>
+              <Card sx={{   height: '100%', maxHeight:"100%", overflowY: 'auto' }}>
+                <CardHeader title="Inventory Items" />
+                <CardContent>
+                  <TextField
+                    label="Search by Name"
+                    fullWidth
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    InputLabelProps={{
+                      shrink: true,
+                      style: { fontWeight: 'bold', fontSize: '1rem', color: '#000' },
+                    }}
+                    sx={{
+                      marginBottom: 2,
+                      '& .MuiInputBase-root': {
+                        padding: '6px 14px',
+                        height: '40px',
+                        backgroundColor: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        '& fieldset': {
+                          borderColor: '#e0e0e0',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#bdbdbd',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#000',
+                        },
+                      },
+                    }}
+                  />
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Name</TableCell>
+                          <TableCell>Quantity</TableCell>
+                          <TableCell>Expiration</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {filteredInventory.map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell>{item.name}</TableCell>
+                            <TableCell>{item.quantity}</TableCell>
+                            <TableCell>{item.expiration}</TableCell>
+                            <TableCell>
+                              <IconButton 
+                                color="primary" 
+                                onClick={() => startEditing(item)}
+                                sx={{ marginRight: 1 }}
+                              >
+                                <Edit />
+                              </IconButton>
+                              <IconButton 
+                                color="error" 
+                                onClick={() => removeItem(item.id)}
+                              >
+                                <Delete />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </Box>
 
         {/* Footer */}
