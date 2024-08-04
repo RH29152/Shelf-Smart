@@ -58,7 +58,7 @@ const theme = createTheme({
 });
 
 const Pantry = () => {
-  const [Inventory, setInventory] = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [filteredInventory, setFilteredInventory] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [itemName, setItemName] = useState('');
@@ -70,81 +70,87 @@ const Pantry = () => {
 
   const router = useRouter();
 
-  const fetchInventory = async () => {
+  const fetchUserInventory = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
     try {
-      const snapshot = await getDocs(query(collection(firestore, 'Inventory')));
-      const InventoryList = [];
-      snapshot.forEach(doc => {
-        InventoryList.push({
-          id: doc.id,
-          name: doc.id,
-          ...doc.data(),
-        });
-      });
-      setInventory(InventoryList);
-      setFilteredInventory(InventoryList);
-      console.log("Fetched inventory:", InventoryList);
+      const userId = currentUser.uid;
+      const userInventoryCollection = collection(firestore, `users/${userId}/inventory`);
+      const snapshot = await getDocs(query(userInventoryCollection));
+      const inventoryList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setInventory(inventoryList);
+      setFilteredInventory(inventoryList);
+      console.log("Fetched inventory:", inventoryList);
     } catch (error) {
       console.error("Error fetching inventory:", error);
     }
   };
 
-  const updateInventory = async () => {
-    await fetchInventory();
-  };
+  const addUserItem = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
 
-  const removeItem = async (id) => {
-    try {
-      const docRef = doc(collection(firestore, 'Inventory'), id);
-      await deleteDoc(docRef);
-      await updateInventory();
-      console.log(`Item with id ${id} removed successfully.`);
-    } catch (error) {
-      console.error("Error removing item:", error);
-    }
-  };
-
-  const addItem = async () => {
-    // Validate input fields
     if (!itemName || !itemQuantity || !itemExpiration) {
       alert("Please fill in all fields before adding an item.");
       return;
     }
 
     try {
-      const docRef = doc(collection(firestore, 'Inventory'), itemName);
-      await setDoc(docRef, {
+      const userId = currentUser.uid;
+      const userInventoryCollection = collection(firestore, `users/${userId}/inventory`);
+      const itemDoc = doc(userInventoryCollection);
+      await setDoc(itemDoc, {
         name: itemName,
         quantity: Number(itemQuantity),
-        expiration: itemExpiration
-      }, { merge: true });
+        expiration: itemExpiration,
+      });
 
       console.log("Item successfully added!");
 
       resetForm();
-      await updateInventory();
+      await fetchUserInventory();
     } catch (error) {
       console.error("Error adding item:", error);
     }
   };
 
-  const editItem = async () => {
-    if (!editingItem) return;
+  const editUserItem = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser || !editingItem) return;
 
     try {
-      const docRef = doc(collection(firestore, 'Inventory'), editingItem.id);
-      await setDoc(docRef, {
-        name: editingItem.id,
+      const userId = currentUser.uid;
+      const userInventoryCollection = collection(firestore, `users/${userId}/inventory`);
+      const itemDoc = doc(userInventoryCollection, editingItem.id);
+      await setDoc(itemDoc, {
+        name: editingItem.name,
         quantity: Number(itemQuantity),
-        expiration: itemExpiration
+        expiration: itemExpiration,
       }, { merge: true });
 
       console.log("Item successfully edited!");
 
       resetForm();
-      await updateInventory();
+      await fetchUserInventory();
     } catch (error) {
       console.error("Error editing item:", error);
+    }
+  };
+
+  const removeUserItem = async (id) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    try {
+      const userId = currentUser.uid;
+      const userInventoryCollection = collection(firestore, `users/${userId}/inventory`);
+      const itemDoc = doc(userInventoryCollection, id);
+      await deleteDoc(itemDoc);
+      console.log(`Item with id ${id} removed successfully.`);
+      await fetchUserInventory();
+    } catch (error) {
+      console.error("Error removing item:", error);
     }
   };
 
@@ -165,10 +171,10 @@ const Pantry = () => {
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
     if (e.target.value === '') {
-      setFilteredInventory(Inventory);
+      setFilteredInventory(inventory);
     } else {
       setFilteredInventory(
-        Inventory.filter(item => 
+        inventory.filter(item => 
           item.name.toLowerCase().includes(e.target.value.toLowerCase())
         )
       );
@@ -196,12 +202,11 @@ const Pantry = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
+        fetchUserInventory();
       } else {
         router.push('/Signin');
       }
     });
-
-    updateInventory();
 
     return () => unsubscribe();
   }, []);
@@ -339,7 +344,7 @@ const Pantry = () => {
                       <Button
                         variant="contained"
                         color="primary"
-                        onClick={editingItem ? editItem : addItem}
+                        onClick={editingItem ? editUserItem : addUserItem}
                       >
                         {editingItem ? 'Save Changes' : 'Add Item'}
                       </Button>
@@ -360,7 +365,7 @@ const Pantry = () => {
 
             {/* Inventory Table */}
             <Grid item xs={12} md={8}>
-              <Card sx={{   height: '100%', maxHeight:"100%", overflowY: 'auto' }}>
+              <Card sx={{ height: '100%', maxHeight: "100%", overflowY: 'auto' }}>
                 <CardHeader title="Inventory Items" />
                 <CardContent>
                   <TextField
@@ -421,7 +426,7 @@ const Pantry = () => {
                               </IconButton>
                               <IconButton 
                                 color="error" 
-                                onClick={() => removeItem(item.id)}
+                                onClick={() => removeUserItem(item.id)}
                               >
                                 <Delete />
                               </IconButton>
