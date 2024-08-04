@@ -133,8 +133,8 @@ const LandingPage = () => {
               },
             }}
           >
-            <MenuItem onClick={handleMenuClose} href="/login">Sign In</MenuItem>
-            <MenuItem onClick={handleMenuClose} href="/signup">Sign Up</MenuItem>
+            <MenuItem onClick={handleMenuClose} href="/Signin">Sign In</MenuItem>
+            <MenuItem onClick={handleMenuClose} href="/Signup">Sign Up</MenuItem>
           </Menu>
         </Box>
 
