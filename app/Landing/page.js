@@ -65,17 +65,8 @@ const theme = createTheme({
   },
 });
 
-
 const LandingPage = () => {
-
-  // adding router to navigate to sign in page
-
   const router = useRouter();
-
-  const handleSignIn = () => {
-    router.push('/Signin');
-  };
-
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuClick = (event) => {
@@ -84,7 +75,17 @@ const LandingPage = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-}
+  };
+
+  const handleSignInClick = () => {
+    handleMenuClose();
+    router.push('/Signin');
+  };
+
+  const handleSignUpClick = () => {
+    handleMenuClose();
+    router.push('/Signup');
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -133,8 +134,8 @@ const LandingPage = () => {
               },
             }}
           >
-            <MenuItem onClick={handleMenuClose} href="/Signin">Sign In</MenuItem>
-            <MenuItem onClick={handleMenuClose} href="/Signup">Sign Up</MenuItem>
+            <MenuItem onClick={handleSignInClick}>Sign In</MenuItem>
+            <MenuItem onClick={handleSignUpClick}>Sign Up</MenuItem>
           </Menu>
         </Box>
 
